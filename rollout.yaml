@@ -48,3 +48,7 @@ spec:
           # Reference to an Ingress which has a rule pointing to the stable service (e.g. rollouts-demo-stable)
           # This ingress will be cloned with a new name, in order to achieve NGINX traffic splitting.
           stableIngress: rollouts-demo
+          annotationPrefix: customingress.nginx.ingress.kubernetes.io # optional
+          additionalIngressAnnotations:   # optional
+            canary-by-header: X-Canary
+            canary-by-header-value: iwantit
