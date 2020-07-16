@@ -1,0 +1,13 @@
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: db-services-config
+data:
+  CACHE_HOSTNAME: cache-service
+  DB_ENV_ADMIN_BASE_URL: http://admin-service:80
+  SERVER_HEALTH_URL: http://batch-service:80/actuator/health
+  SERVER_SERVICE_URL: http://batch-service:80/actuator
+  SERVER_URL: http://batch-service:80
+  SPRING_SECURITY_PASSWORD: RPM_ADMIN_PASSWORD

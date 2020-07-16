@@ -1,0 +1,65 @@
+---
+# Source: rpm-chart/templates/admin-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-service
+spec:
+  type: NodePort
+  selector:
+    app: admin
+  ports:
+    - name: adminport
+      port: 80
+      targetPort: 9090
+
+---
+# Source: rpm-chart/templates/batch-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: batch-service
+spec:
+  type: NodePort
+  selector:
+    app: batch
+  ports:
+    - name: batchport
+      port: 80
+      targetPort: 9091
+
+---
+# Source: rpm-chart/templates/cache-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache-service
+spec:
+  selector:
+    app: cache
+  ports:
+    - name: cacheport
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+# Source: rpm-chart/templates/server-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-service
+  labels:
+    app: server
+spec:
+  type: NodePort
+  selector:
+    app: server
+  ports:
+    - name: serverport
+      port: 80
+      targetPort: 8080

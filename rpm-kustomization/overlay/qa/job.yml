@@ -1,0 +1,24 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: qa
+  labels:
+    app: job-nrt-karate
+  name: job-nrt-karate
+spec:
+  backoffLimit: 2
+  completions: 1
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: job-nrt-karate
+    spec:
+      containers:
+        - image: eu.gcr.io/rpm-qualification-hild/rpm-nrt:IMAGE_TAG
+          name: job-nrt-karate
+          command:
+            - 'sh'
+            - '/rpm-nrt/run-karate-nrt.sh'
+      restartPolicy: Never

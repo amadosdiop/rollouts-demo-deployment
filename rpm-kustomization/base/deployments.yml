@@ -1,0 +1,227 @@
+---
+# Source: rpm-chart/templates/admin-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: admin
+  name: admin
+spec:
+  selector:
+    matchLabels:
+      app: admin
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+        - env:
+            - name: SPRING_SECURITY_PASSWORD
+              value: RPM_ADMIN_PASSWORD
+          image: eu.gcr.io/rpm-qualification-hild/rpm-admin:9239075860b29db0ba4f5821e574e063fde4e76f
+          name: admin
+          ports:
+            - containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9090
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources: {}
+          stdin: true
+          tty: true
+      restartPolicy: Always
+
+---
+# Source: rpm-chart/templates/batch-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: batch
+  name: batch
+spec:
+  selector:
+    matchLabels:
+      app: batch
+  replicas:  1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: batch
+    spec:
+      containers:
+        - image:  eu.gcr.io/rpm-qualification-hild/rpm-batch/batch-assembler:9239075860b29db0ba4f5821e574e063fde4e76f
+          name: batch
+          ports:
+            - containerPort: 9091
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9091
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources: {}
+          stdin: true
+          tty: true
+          envFrom:
+            - configMapRef:
+                name: ftp-config
+            - secretRef:
+                name: ftp-secret
+            - configMapRef:
+                name: db-services-config
+            - secretRef:
+                name: db-services-secret
+            - configMapRef:
+                name: others-config
+          env:
+            - name: DB_ENV_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: password
+            - name: DB_ENV_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: username
+            - name: DB_ENV_DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: instance_ip
+            - name: DB_ENV_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: database_name
+
+      volumes:
+        - name: ftp-config-volume
+          configMap:
+            name: ftp-config
+        - name: db-services-config-volume
+          configMap:
+            name: db-services-config
+        - name: ftp-secret-volume
+          secret:
+            secretName: ftp-secret
+        - name: db-services-secret-volume
+          secret:
+            secretName: db-services-secret
+        - name: others-config-volume
+          configMap:
+            name: others-config
+
+      restartPolicy: Always
+
+---
+# Source: rpm-chart/templates/cache-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: cache
+  name: cache
+spec:
+  selector:
+    matchLabels:
+      app: cache
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: cache
+    spec:
+      containers:
+        - image: redis:5.0.5
+          name: cache
+          resources: {}
+          stdin: true
+          tty: true
+
+      restartPolicy: Always
+
+---
+# Source: rpm-chart/templates/server-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: server
+  name: server
+spec:
+  selector:
+    matchLabels:
+      app: server
+  replicas: 2
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - image: eu.gcr.io/rpm-qualification-hild/rpm-server:9239075860b29db0ba4f5821e574e063fde4e76f
+          name: server
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources: {}
+          stdin: true
+          tty: true
+          envFrom:
+            - configMapRef:
+                name: db-services-config
+            - secretRef:
+                name: db-services-secret
+            - configMapRef:
+                name: others-config
+          env:
+            - name: DB_ENV_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: password
+            - name: DB_ENV_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: username
+            - name: DB_ENV_DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: instance_ip
+            - name: DB_ENV_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: sql-credentials
+                  key: database_name
+      volumes:
+        - name: db-services-config-volume
+          configMap:
+            name: db-services-config
+        - name: db-services-secret-volume
+          secret:
+            secretName: db-services-secret
+        - name: others-config-volume
+          configMap:
+            name: others-config
+      restartPolicy: Always

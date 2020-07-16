@@ -1,0 +1,17 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ftp-config
+data:
+  ERROR_PATH: /usr/src/ftp/error
+  INCOMING_PATH: /usr/src/ftp/incoming
+  INCOMPLETE_PATH: /usr/src/ftp/incomplete
+  ARCHIVE_PATH: /usr/src/ftp/archive
+  WORKING_PATH: /usr/src/ftp/working
+  COLISSIMO_FTP_HOST: ftp.edi.colissimo.fr
+  COLISSIMO_FTP_LOGIN: edi830423
+  MONDIAL_RELAY_FTP_HOST: FTP.MONDIALRELAY.COM
+  MONDIAL_RELAY_FTP_LOGIN: decathlon
+  MONDIAL_RELAY_BE_FTP_HOST: FTP.MONDIALRELAY.COM
+  MONDIAL_RELAY_BE_FTP_LOGIN: DECATHLON_BE
